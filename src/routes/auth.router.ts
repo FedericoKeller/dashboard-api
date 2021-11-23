@@ -4,3 +4,5 @@ import * as AuthController from '../controllers/auth.controller';
 export const authRoutes = Router();
 
 authRoutes.post("/login", AuthController.login);
+authRoutes.post("/register", AuthController.register);
+authRoutes.put("/reset/:token",AuthController.confirmAccount);
