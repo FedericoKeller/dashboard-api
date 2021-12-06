@@ -10,15 +10,19 @@ import Verification from '../models/verification/verification.model';
 import  { randomBytes } from "crypto";
 import HttpException from '../common/http-exception';
 import { createTransport } from 'nodemailer';
+import * as dotenv from "dotenv";
 
+dotenv.config();
 
 const MAILTRAP_TRANSPORT = createTransport({
-  host: "smtp.mailtrap.io",
-  port: 2525,
+  service: 'gmail',
   auth: {
-    user: "8e729f08981763",
-    pass: "420615a1526557"
-  }
+    user: process.env.MAIL_USERNAME,
+    pass: process.env.MAIL_PASSWORD,
+    clientId: process.env.OAUTH_CLIENTID,
+    clientSecret: process.env.OAUTH_CLIENT_SECRET,
+    refreshToken: process.env.OAUTH_REFRESH_TOKEN
+  } 
 });
 /**
  * Service Methods
@@ -59,15 +63,13 @@ export const generateConfirmationEmail = async (user: any) => {
 
     
 
-    console.log(`http://localhost:3001/reset/${token}`);
-
     MAILTRAP_TRANSPORT.sendMail({
       to: user.email,
       from: "no-reply@dashsmart.com",
-      subject: "Password Reset",
+      subject: "Account Verification",
       html: `
           <p>Welcome!</p>
-          <p>Click this <a href="http://localhost:3001/reset/${token}">link</a> to confirm your account.</p>
+          <p>Click this <a href="http://localhost:4200/register/${token}">link</a> to confirm your account.</p>
       `,
     });
 
