@@ -1,14 +1,14 @@
 // src/items/user.interface.ts
 
-import { ObjectId } from "mongoose";
+import { Document, ObjectId } from "mongoose";
 
-export interface BaseUser {
+export interface BaseUser extends Document {
     name: string;
     email: string;
     password: string;
     active?: boolean;
     confirmationToken?: string;
-    confirmationTokenExpiration?: Date;
+    confirmationTokenExpiration?: number;
 
 }
 

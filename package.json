@@ -10,12 +10,14 @@
   "author": "Federico Keller",
   "license": "ISC",
   "dependencies": {
+    "@types/mjml": "^4.7.0",
     "argon2": "^0.28.2",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-validator": "^6.13.0",
     "helmet": "^4.6.0",
+    "mjml": "^4.11.0",
     "mongodb": "^4.1.4",
     "mongoose": "^6.0.12",
     "nodemailer": "^6.7.1"
