@@ -8,7 +8,8 @@ import { BaseUser } from '../models/user/user.interface';
 import User from '../models/user/user.model';
 import  { randomBytes } from "crypto";
 import HttpException from '../common/http-exception';
-import { EmailFactory, IData, ResetPassword } from './email-factory.service';
+import { IData } from './email-builder';
+import { EmailBuilder } from './email-builder.service';
 
 /**
  * Service Methods
@@ -49,9 +50,9 @@ export const generateConfirmationEmail = async (user: BaseUser) => {
 
 
     const raw1 = {user: user, token: token} as IData;
-    const emailFactoryRef = EmailFactory.createEmail(ResetPassword, raw1)
+    console.log(raw1)
+    new EmailBuilder(raw1).generateEmailTemplate('ResetPassword').sendEmail();
     
-    emailFactoryRef.sendEmail();
 
 
 
@@ -61,4 +62,7 @@ export const generateConfirmationEmail = async (user: BaseUser) => {
   })
 } 
 
+export class Test {
+
+}
 

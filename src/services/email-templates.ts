@@ -1,7 +1,7 @@
 import { BaseUser } from "../models/user/user.interface";
 import mjml2html from 'mjml'
 
-export module EmailTemplates {
+export module EmailTemplatesModule {
     export function getResetPasswordTemplate(user: BaseUser, token: string): string {
        return mjml2html(` <mjml>
 <mj-body background-color="#ffffff" font-size="13px">
