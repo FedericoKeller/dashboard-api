@@ -41,28 +41,15 @@ export const generateConfirmationEmail = async (user: BaseUser) => {
     user.confirmationTokenExpiration = Date.now() + 3600000;
     
     try {
+      const raw1 = {user: user, token: token} as IData;
+      new EmailBuilder(raw1).generateEmailTemplate('ResetPassword').sendEmail();
       await user.save();
 
     } catch (error: any) {
       error.statusCode = 500;
       throw error;
     }
-
-
-    const raw1 = {user: user, token: token} as IData;
-    console.log(raw1)
-    new EmailBuilder(raw1).generateEmailTemplate('ResetPassword').sendEmail();
-    
-
-
-
-
-
-
   })
 } 
 
-export class Test {
-
-}
 
