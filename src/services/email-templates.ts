@@ -1,9 +1,12 @@
 import { BaseUser } from "../models/user/user.interface";
-import mjml2html from 'mjml'
+import mjml2html from "mjml";
 
 export module EmailTemplatesModule {
-    export function getResetPasswordTemplate(user: BaseUser, token: string): string {
-       return mjml2html(` <mjml>
+  export function getActivateAccountTemplate(
+    user: BaseUser,
+    token: string
+  ): string {
+    return mjml2html(` <mjml>
 <mj-body background-color="#ffffff" font-size="13px">
   <mj-section background-color="#ffffff" padding-bottom="0px" padding-top="0">
     <mj-column vertical-align="top" width="100%">
@@ -25,6 +28,31 @@ export module EmailTemplatesModule {
   </mj-section>
 </mj-body>
 </mjml>`).html;
+  }
 
-    }
+  export function getResetPasswordTemplate(
+    user: BaseUser,
+    token: string
+  ): string {
+    return mjml2html(`<mjml>
+    <mj-body>
+      <mj-section>
+        <mj-column>
+  
+          <mj-image width="150px" height="100px" src="https://i.imgur.com/w6dyMrJ.png"></mj-image>
+  
+          <mj-divider border-color="#00A390"></mj-divider>
+  
+          <mj-text font-size="20px" color="#00A390" font-family="helvetica">Hey ${user.email},</mj-text>
+          <mj-text font-size="20px" color="#00A390" font-family="helvetica" line-height=2>
+          Your DashSmart password can be reset by clicking the button below. If you did not request a new password, please ignore this email.
+          </mj-text>
+                <mj-button align="center" padding-bottom="20px" padding-top="20px" font-size="22px"background-color="#00A390" border-radius="10px" color="#fff" font-family="open Sans Helvetica, Arial, sans-serif" href="http://localhost:4200/confirm/${token}">Reset Password</mj-button>
+  
+                  <mj-text font-size="20px" color="#00A390" font-family="helvetica">The DashSmart Team</mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-body>
+  </mjml>`).html;
+  }
 }

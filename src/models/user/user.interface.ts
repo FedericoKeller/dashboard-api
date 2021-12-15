@@ -2,13 +2,19 @@
 
 import { Document, ObjectId } from "mongoose";
 
+
+export interface Tokens {
+    confirmationToken?: string;
+    confirmationTokenExpiration?: number;
+    resetPasswordToken?: string;
+    resetPasswordTokenExpiration?: number;
+}
 export interface BaseUser extends Document {
     name: string;
     email: string;
     password: string;
     active?: boolean;
-    confirmationToken?: string;
-    confirmationTokenExpiration?: number;
+    tokens: Tokens;
 
 }
 

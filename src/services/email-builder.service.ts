@@ -1,8 +1,8 @@
-import { BaseUser } from "../models/user/user.interface";
+import { BaseUser, ExtendedUser } from "../models/user/user.interface";
 import { EmailTemplatesModule } from "./email-templates";
 import { createTransport } from "nodemailer";
 import * as dotenv from "dotenv";
-import { IEmail, IData, EmailTypes } from "./email-builder";
+import { IEmail, AcceptedEmailsOperations } from "./email-builder";
 
 dotenv.config();
 
@@ -22,20 +22,26 @@ export class EmailBuilder implements IEmail {
   private token: string;
   private emailTemplate: string = "";
 
-  constructor(raw: IData) {
-    this.user = raw.user;
-    this.token = raw.token;
+  constructor(user: ExtendedUser) {
+    this.user = user;
+    this.token = <string>user.tokens.confirmationToken;
   }
 
-  generateEmailTemplate<T extends EmailTypes>(emailTypes: T): EmailBuilder {
+  generateEmailTemplate<T extends AcceptedEmailsOperations>(emailTypes: T): EmailBuilder {
     let emailTemplate: string = "";
     switch (emailTypes) {
-      case "ResetPassword":
-        emailTemplate = EmailTemplatesModule.getResetPasswordTemplate(
+      case "ActivateAccount":
+        emailTemplate = EmailTemplatesModule.getActivateAccountTemplate(
           this.user,
           this.token
         );
         break;
+        case "ResetPassword":
+          emailTemplate = EmailTemplatesModule.getResetPasswordTemplate(
+            this.user,
+            this.token
+          );
+          break;
     }
 
     this.emailTemplate = emailTemplate;

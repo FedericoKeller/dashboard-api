@@ -13,11 +13,12 @@ authRoutes.post(
       .isEmail()
       .withMessage("Please enter a valid email.")
       .custom(async (value, { req }) => {
-          const user = await AuthService.find(req.body.email);
-          if(!user?.active) {
-            return Promise.reject("User not found");
-          }
-      }).normalizeEmail()
+        const user = await AuthService.find(req.body.email);
+        if (!user?.active) {
+          return Promise.reject("User not found");
+        }
+      })
+      .normalizeEmail(),
   ],
   AuthController.login
 );
@@ -53,3 +54,9 @@ authRoutes.post(
 );
 
 authRoutes.put("/reset/:token", AuthController.confirmAccount);
+
+authRoutes.post(
+  "/resetPassword",
+  [body("email").isEmail().normalizeEmail()],
+  AuthController.resetPassword
+);

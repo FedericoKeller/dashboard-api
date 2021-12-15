@@ -4,11 +4,11 @@
  * Data Model Interfaces
  */
 
-import { BaseUser } from '../models/user/user.interface';
+import { BaseUser, ExtendedUser, Tokens } from '../models/user/user.interface';
 import User from '../models/user/user.model';
 import  { randomBytes } from "crypto";
 import HttpException from '../common/http-exception';
-import { IData } from './email-builder';
+import { AcceptedEmailsOperations } from './email-builder';
 import { EmailBuilder } from './email-builder.service';
 
 /**
@@ -16,7 +16,7 @@ import { EmailBuilder } from './email-builder.service';
  */
 
 export const find = async(email: string) =>  {
-    let user;
+    let user: ExtendedUser | null = null;
 
     try {
       user = await User.findOne({email: email});
@@ -29,27 +29,35 @@ export const find = async(email: string) =>  {
 }
 
 
-export const generateConfirmationEmail = async (user: BaseUser) => {
+export const createToken = (): Promise<string> => {
+
+return new Promise<string>((resolve, reject) => {
   randomBytes(32, async (err, buffer) => {
+    let token: string = "";
     if(err) {
-      const error = new HttpException(422, "Error while generating confirmation e-mail");
+      const error = new HttpException(422, "Error while generating token");
       throw error;
     }
 
-    const token = buffer.toString("hex");
-    user.confirmationToken = token;
-    user.confirmationTokenExpiration = Date.now() + 3600000;
+    token = buffer.toString("hex");
+    resolve(token);
+  })
+})
+
+
+}
+ 
+export const generateEmail = async (user: ExtendedUser, tokens: Tokens, action: AcceptedEmailsOperations) => {
+    user.tokens = tokens;
     
     try {
-      const raw1 = {user: user, token: token} as IData;
-      new EmailBuilder(raw1).generateEmailTemplate('ResetPassword').sendEmail();
+      new EmailBuilder(user).generateEmailTemplate(action).sendEmail();
       await user.save();
 
     } catch (error: any) {
       error.statusCode = 500;
       throw error;
     }
-  })
-} 
+}
 
 

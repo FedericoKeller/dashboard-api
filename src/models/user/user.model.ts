@@ -12,8 +12,12 @@ const userSchema = new Schema<BaseUser>({
         required: true
     },
     active: Boolean,
-    confirmationToken: String,
-    confirmationTokenExpiration: Date
+    tokens: {
+        confirmationToken: String,
+        confirmationTokenExpiration: Date,
+        resetPasswordToken: String,
+        resetPasswordTokenExpiration: Date,
+    }
 })
 
 const User = model<BaseUser>("User", userSchema);
