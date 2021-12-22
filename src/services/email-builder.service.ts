@@ -24,7 +24,7 @@ export class EmailBuilder implements IEmail {
 
   constructor(user: ExtendedUser) {
     this.user = user;
-    this.token = <string>user.tokens.confirmationToken;
+    this.token = <string>user.tokens.confirmationToken || <string>user.tokens.resetPasswordToken;
   }
 
   generateEmailTemplate<T extends AcceptedEmailsOperations>(emailTypes: T): EmailBuilder {
