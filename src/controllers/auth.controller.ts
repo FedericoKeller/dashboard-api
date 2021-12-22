@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, Errback } from "express";
 import HttpException from "../common/http-exception";
 import * as AuthService from "../services/auth.service";
 import { hash, verify } from "argon2";
@@ -15,15 +15,6 @@ export const register = async (
   const password = req.body.password;
 
   try {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      const error = new HttpException(
-        422,
-        "Validation failed, entered data is incorrect."
-      );
-      throw error;
-    }
 
     const hashedPw = await hash(password);
 
@@ -66,7 +57,7 @@ export const confirmAccount = async (
   try {
     let user = await User.findOne({
       "tokens.confirmationToken": token,
-      "tokens.resetTokenExpiration": { $gt: Date.now() },
+      "tokens.confirmationTokenExpiration": { $gt: Date.now() },
     });
 
     if (!user) {
@@ -98,35 +89,20 @@ export const confirmAccount = async (
   }
 };
 
-export const resetPassword = async (
+export const sendResetPasswordEmail = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      const error = new HttpException(
-        422,
-        "Validation failed, entered data is incorrect."
-      );
-      throw error;
-    }
     
   const email: string = req.body.email;
 
   try {
     const user = await AuthService.find(email);
 
-    if (!user) {
-      const err = new HttpException(422, "User doesn't exist.");
-      throw err;
-    }
-
     const emailData: Tokens = {
-      confirmationToken: await AuthService.createToken(),
-      confirmationTokenExpiration: Date.now() + 3600000,
+      resetPasswordToken: await AuthService.createToken(),
+      resetPasswordTokenExpiration: Date.now() + 3600000,
     };
 
     await AuthService.generateEmail(user, emailData, "ResetPassword");
@@ -142,6 +118,58 @@ export const resetPassword = async (
   }
 };
 
+
+export const grantAccessToResetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  const token: string = req.params.token;
+
+  try {
+    let user = await User.findOne({
+      "tokens.resetPasswordToken": token,
+      "tokens.resetPasswordTokenExpiration": { $gt: Date.now() },
+    });
+
+    if (!user) {
+      const err = new HttpException(
+        422,
+        "User doesn't exist or the account has been already confirmed."
+      );
+      throw err;
+    }
+
+    res.status(200).json({email: user.email});
+
+
+    
+
+
+  } catch(err: any) {
+    next(err);
+  }
+}
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    const email: string = req.body.email;
+    const password: string = req.body.password;
+    
+    try {
+      const hashedPw = await hash(password);
+
+      await User.updateOne({"email": email}, {
+        $set: {
+          "password": hashedPw,
+        },
+        $unset: {
+          "tokens.resetPasswordToken": 1,
+          "tokens.resetPasswordTokenExpiration": 1,
+        },
+      })
+
+      res.status(200).json({message: "Password changed!"})
+    } catch (err: any) {
+      next(err);
+    }
+}
+
 export const login = async (
   req: Request,
   res: Response,
@@ -151,17 +179,8 @@ export const login = async (
   const password: string = req.body.password;
 
   try {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      const error = new HttpException(
-        422,
-        "Validation failed, entered data is incorrect."
-      );
-      throw error;
-    }
-
     const user = await AuthService.find(email);
+
 
     const verifyUser = await verify(user!.password, password);
 
