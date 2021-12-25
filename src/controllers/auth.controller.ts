@@ -113,8 +113,9 @@ export const sendResetPasswordEmail = async (
   } catch (err: any) {
     if (!(err instanceof HttpException)) {
       err.statusCode = 500;
-      next(err);
     }
+
+    next(err);
   }
 };
 
