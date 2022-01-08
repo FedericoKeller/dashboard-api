@@ -3,7 +3,7 @@ import * as AuthController from "../controllers/auth.controller";
 import { body } from "express-validator";
 import * as AuthService from "../services/auth.service";
 import validateFields from "../middleware/validation-error.middleware";
-import HttpException from "../common/http-exception";
+import isAuth from "../middleware/is-auth.middleware";
 import User from "../models/user/user.model";
 
 export const authRoutes = Router();

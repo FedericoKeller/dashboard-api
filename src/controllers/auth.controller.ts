@@ -5,6 +5,11 @@ import { hash, verify } from "argon2";
 import User from "../models/user/user.model";
 import { validationResult } from "express-validator";
 import { Tokens } from "../models/user/user.interface";
+import * as dotenv from "dotenv";
+import * as jwt from "jsonwebtoken";
+
+dotenv.config();
+
 
 export const register = async (
   req: Request,
@@ -178,6 +183,8 @@ export const login = async (
 ) => {
   const email: string = req.body.email;
   const password: string = req.body.password;
+  const JWT_SECRET = process.env.JWT_SECRET as string;
+  const JWT_EXPIRATION = process.env.JWT_EXPIRATION as string;
 
   try {
     const user = await AuthService.find(email);
@@ -193,9 +200,19 @@ export const login = async (
       throw error;
     }
 
-    res.status(201).json({
-      message: "User found!",
-      user: user,
+    const token = jwt.sign(
+      {
+        email: user.email,
+        userId: user._id.toString()
+      },
+      JWT_SECRET,
+      {
+        expiresIn: JWT_EXPIRATION,
+      }
+    )
+
+    res.status(200).json({
+      token: token
     });
   } catch (err: any) {
     next(err);
